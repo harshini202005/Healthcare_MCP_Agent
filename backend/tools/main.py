@@ -12,14 +12,14 @@ def main():
     print("🏥 Healthcare Assistant - Starting Backend Server...")
     print("=" * 60)
     
- 
+    # Check if virtual environment is activated
     if not hasattr(sys, 'real_prefix') and not (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
         print("⚠️  Virtual environment not activated!")
         print("\n📝 To activate, run:")
         print("   source .venv/bin/activate")
         print("\nOr let me start it anyway...\n")
     
-    
+    # Get the project directory
     project_dir = os.path.dirname(os.path.abspath(__file__))
     
     try:
@@ -29,6 +29,7 @@ def main():
         print("=" * 60)
         print()
         
+        # Start uvicorn server
         subprocess.run([
             sys.executable, "-m", "uvicorn",
             "backend.main:app",

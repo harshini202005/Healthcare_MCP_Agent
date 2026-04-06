@@ -1,0 +1,6 @@
+# Ignore actual environment files
+.env
+
+# Keep example/template files
+.env.example
+

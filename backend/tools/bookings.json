@@ -109,25 +109,5 @@
     "reason": "neurlogy tommorrow 12 PM i have head pain",
     "status": "confirmed",
     "booked_at": "2026-01-17T19:42:41.352171"
-  },
-  {
-    "confirmation_number": "APT-84813",
-    "patient_id": "PAT001",
-    "appointment_date": "2026-03-03",
-    "appointment_time": "10:00",
-    "specialty": "general-practice",
-    "reason": "PAT001",
-    "status": "confirmed",
-    "booked_at": "2026-03-02T22:30:04.355230"
-  },
-  {
-    "confirmation_number": "APT-40780",
-    "patient_id": "11",
-    "appointment_date": "2026-03-02",
-    "appointment_time": "11:00",
-    "specialty": "orthopedics",
-    "reason": "11 am",
-    "status": "confirmed",
-    "booked_at": "2026-03-02T22:31:06.116905"
   }
 ]

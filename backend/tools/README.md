@@ -1,0 +1,62 @@
+🏥 Healthcare Assistant – AI Chat
+
+A simple AI-based healthcare chatbot that allows users to:
+
+💬 Ask general health questions
+
+🥗 Generate diet plans
+
+📅 Book doctor appointments
+
+Built using HTML, CSS, and JavaScript with backend API integration.
+
+🚀 Features
+1️⃣ General Health Queries
+
+Users can ask health-related questions and receive AI responses.
+
+2️⃣ Diet Plan Generator
+
+Supports vegetarian, vegan, keto, balanced diets, etc.
+
+Calorie-based customization
+
+Allergy support
+
+3️⃣ Appointment Booking
+
+Interactive booking flow that collects:
+
+Patient ID
+
+Department
+
+Date
+
+Time
+
+Reason (optional)
+
+Preferred doctor (optional)
+
+Supports natural inputs like:
+
+tomorrow
+
+next week Monday
+
+10 AM
+
+2:30 PM
+
+🛠️ Tech Stack
+
+HTML
+
+CSS
+
+JavaScript
+
+Fetch API
+
+Backend API (running on http://localhost:8000)

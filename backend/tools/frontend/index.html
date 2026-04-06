@@ -802,13 +802,14 @@
 
             const currentQ = questions[bookingState.step];
 
-            
+            // Handle optional fields
             if (currentQ.optional && response.toLowerCase() === 'skip') {
                 bookingState.step++;
                 await askNextQuestion();
                 return;
             }
 
+            // Process the response based on field type
             if (currentQ.field === 'date') {
                 const { date } = parseDateTime(response, '');
                 bookingState.data.date = date;
@@ -816,7 +817,7 @@
                 const { time } = parseDateTime('', response);
                 bookingState.data.time = time;
             } else if (currentQ.field === 'specialty') {
-               
+                // Map specialty names
                 const specialtyMap = {
                     'cardiology': 'cardiology',
                     'dermatology': 'dermatology',
@@ -872,6 +873,7 @@
                 const formattedResponse = formatResponse(result, 'book_appointment');
                 addMessage(formattedResponse, 'assistant');
                 
+                // Reset booking state
                 bookingState.active = false;
                 bookingState.step = 0;
                 bookingState.data = {};

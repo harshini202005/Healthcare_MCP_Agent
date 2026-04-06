@@ -1,10 +1,14 @@
-
+"""
+Healthcare MCP (Model Context Protocol) Server
+Provides tools for diet planning, appointment booking, and health queries.
+"""
 
 from typing import Dict, Any, List, Optional
 from backend.tools import diet, booking, general
 
 
-tools = {    
+# MCP Tool Registry with detailed schemas
+tools = {
     "generate_diet": {
         "name": "generate_diet",
         "description": "Generate personalized AI-powered diet plans based on user preferences and health goals",
@@ -106,7 +110,7 @@ def call_tool(name: str, args: Optional[Dict[str, Any]] = None) -> Dict[str, Any
     if args is None:
         args = {}
     
-    
+    # Validate tool exists
     if name not in tools:
         return {
             "error": f"Unknown tool: {name}",
@@ -114,7 +118,7 @@ def call_tool(name: str, args: Optional[Dict[str, Any]] = None) -> Dict[str, Any
         }
     
     try:
-        
+        # Route to appropriate tool handler
         if name == "generate_diet":
             preferences = args.get("preferences")
             if not preferences:

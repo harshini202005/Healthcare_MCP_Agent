@@ -8,7 +8,7 @@ import logging
 import json
 from datetime import datetime
 
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -23,9 +23,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],  # In production, specify your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,17 +66,18 @@ def mcp_call(payload: Dict[str, Any] = Body(...)):
         logger.error("❌ Missing 'name' field in request")
         return {"error": "Missing 'name' field in request"}
     
-    
+    # Log the incoming request
     logger.info("=" * 80)
     logger.info(f"🔧 TOOL CALL: {name}")
     logger.info(f"📥 INPUT ARGS:")
     for key, value in args.items():
         logger.info(f"   • {key}: {value}")
     logger.info("-" * 80)
-  
+    
+    # Execute the tool
     result = call_tool(name, args)
     
-   
+    # Log the response
     if "error" in result:
         logger.error(f"❌ ERROR: {result.get('error')}")
         if "suggestion" in result:
@@ -84,6 +86,7 @@ def mcp_call(payload: Dict[str, Any] = Body(...)):
         logger.info(f"✅ SUCCESS")
         logger.info(f"📤 OUTPUT:")
         
+        # Pretty print the result
         if name == "book_appointment" and "confirmation_number" in result:
             logger.info(f"   🎫 Confirmation: {result['confirmation_number']}")
             logger.info(f"   👤 Patient: {result.get('details', {}).get('Patient ID', 'N/A')}")

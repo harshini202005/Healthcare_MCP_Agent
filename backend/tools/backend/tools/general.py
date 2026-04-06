@@ -23,16 +23,18 @@ def is_health_related(question):
     
     question_lower = question.lower()
     
+    # If question contains health keywords, it's health-related
     if any(keyword in question_lower for keyword in health_keywords):
         return True
     
-    
+    # Check for common health question patterns
     health_patterns = [
         'how to', 'what is', 'why is', 'should i', 'can i', 'is it good', 'is it bad',
         'how much', 'how many', 'what are', 'benefits of', 'effects of', 'causes of'
     ]
     
-   
+    # If it's a "how to" or "what is" type question, be more lenient
+    # Many health questions don't explicitly mention health keywords
     if any(pattern in question_lower for pattern in health_patterns):
         return True
     
@@ -51,7 +53,7 @@ def answer(question, context=None):
     print(f"   Question: {question}")
     print(f"   Context: {context or 'None'}")
     
-   
+    # Validate that query is health-related
     if not is_health_related(question):
         print(f"   ⚠️ Non-health question detected")
         return {
@@ -64,6 +66,8 @@ def answer(question, context=None):
     
     if not api_key or api_key == "your-mistral-api-key-here":
         print(f"   ⚠️ Mistral API key not configured, using template response")
+        
+        # Common health topics with responses
         health_knowledge = {
             "exercise": "Regular exercise is crucial for health. Aim for 150 minutes of moderate aerobic activity or 75 minutes of vigorous activity per week, plus strength training twice weekly.",
             "sleep": "Adults need 7-9 hours of quality sleep per night. Maintain a consistent sleep schedule and create a relaxing bedtime routine.",
@@ -87,6 +91,7 @@ def answer(question, context=None):
             "disclaimer": "⚕️ This is general information. Please consult a healthcare professional for medical advice."
         }
     
+    # Use Mistral AI for response
     client = Mistral(api_key=api_key)
     
     try:

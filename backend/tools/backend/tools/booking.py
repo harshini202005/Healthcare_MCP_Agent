@@ -36,11 +36,11 @@ def validate_15_min_interval(time_str: str) -> Tuple[bool, Optional[str]]:
     try:
         hour, minute = map(int, time_str.split(':'))
         
-        
+        # Check if minutes are in 15-minute intervals (00, 15, 30, 45)
         if minute % 15 != 0:
             return False, f"Time must be in 15-minute intervals (00, 15, 30, 45). Got: {minute}"
         
-        
+        # Validate hour (0-23)
         if hour < 0 or hour > 23:
             return False, f"Hour must be between 00 and 23. Got: {hour}"
         
@@ -107,7 +107,7 @@ def book(user_id: str, date: str, time: str, specialty: Optional[str] = None, re
     print(f"   Specialty: {specialty}")
     print(f"   Reason: {reason}")
     
-   
+    # Validate date format
     date_valid, date_error = validate_date(date)
     if not date_valid:
         print(f"   ❌ Invalid date: {date_error}")
@@ -127,11 +127,11 @@ def book(user_id: str, date: str, time: str, specialty: Optional[str] = None, re
             "suggestion": "Available times: 09:00, 09:15, 09:30, 09:45, 10:00, etc."
         }
     
-    
+    # Set default specialty
     if not specialty:
         specialty = "General Practice"
     
-    
+    # Check for conflicts
     existing = check_conflicts(date, time, specialty)
     if existing:
         conflict_msg = f"Time slot {date} at {time} is already booked for {specialty}"
@@ -143,7 +143,7 @@ def book(user_id: str, date: str, time: str, specialty: Optional[str] = None, re
             "suggestion": "Please choose a different time or specialty."
         }
     
-    
+    # Generate confirmation number
     confirmation_number = f"APT-{random.randint(10000, 99999)}"
     
     # Create booking data
