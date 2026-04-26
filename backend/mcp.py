@@ -1,10 +1,14 @@
-
+"""
+Healthcare MCP (Model Context Protocol) Server
+Provides tools for diet planning, appointment booking, doctor management, and health queries.
+"""
 
 from typing import Dict, Any, List, Optional
-from backend.tools import diet, booking, general
+from backend.tools import diet, booking, general, doctors
 
 
-tools = {    
+# MCP Tool Registry with detailed schemas
+tools = {
     "generate_diet": {
         "name": "generate_diet",
         "description": "Generate personalized AI-powered diet plans based on user preferences and health goals",
@@ -30,7 +34,7 @@ tools = {
     },
     "book_appointment": {
         "name": "book_appointment",
-        "description": "Book medical appointments with healthcare providers. Appointments are scheduled in 15-minute intervals.",
+        "description": "Book medical appointments with healthcare providers. Appointments are scheduled in 15-minute intervals. Auto-assigns available doctor if none specified.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -48,14 +52,100 @@ tools = {
                 },
                 "specialty": {
                     "type": "string",
-                    "description": "Medical specialty (e.g., 'cardiology', 'general practice')"
+                    "description": "Medical specialty (e.g., 'cardiology', 'dermatology', 'general practice')"
                 },
                 "reason": {
                     "type": "string",
                     "description": "Reason for visit"
+                },
+                "doctor_id": {
+                    "type": "string",
+                    "description": "Preferred doctor ID (optional - will auto-assign if not provided)"
                 }
             },
             "required": ["user_id", "date", "time"]
+        }
+    },
+    "get_doctors": {
+        "name": "get_doctors",
+        "description": "Get list of doctors filtered by specialty. Use this before booking to see available doctors.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "specialty": {
+                    "type": "string",
+                    "description": "Medical specialty to filter by (e.g., 'cardiology', 'dermatology', 'pediatrics'). Omit to get all doctors."
+                }
+            },
+            "required": []
+        }
+    },
+    "get_available_slots": {
+        "name": "get_available_slots",
+        "description": "Get available appointment slots for a specific date and specialty. Shows which doctors are free at each time slot.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "specialty": {
+                    "type": "string",
+                    "description": "Required medical specialty (e.g., 'cardiology', 'dermatology')"
+                },
+                "date": {
+                    "type": "string",
+                    "description": "Date to check availability (YYYY-MM-DD format)"
+                },
+                "doctor_id": {
+                    "type": "string",
+                    "description": "Specific doctor ID to check (optional - checks all doctors in specialty if not provided)"
+                }
+            },
+            "required": ["specialty", "date"]
+        }
+    },
+    "get_doctor_schedule": {
+        "name": "get_doctor_schedule",
+        "description": "Get weekly working schedule for a specific doctor. Accepts doctor ID (doc_001) or name (Priya Patel).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "doctor_id": {
+                    "type": "string",
+                    "description": "Doctor's unique ID (e.g., 'doc_001') or name (e.g., 'Priya Patel', 'Dr. Sarah Johnson')"
+                }
+            },
+            "required": ["doctor_id"]
+        }
+    },
+    "get_appointment": {
+        "name": "get_appointment",
+        "description": "Retrieve appointment details using confirmation number",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "confirmation_number": {
+                    "type": "string",
+                    "description": "Confirmation number from booking (e.g., 'APT-12345')"
+                }
+            },
+            "required": ["confirmation_number"]
+        }
+    },
+    "cancel_appointment": {
+        "name": "cancel_appointment",
+        "description": "Cancel an existing appointment",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "confirmation_number": {
+                    "type": "string",
+                    "description": "Confirmation number of the appointment to cancel"
+                },
+                "reason": {
+                    "type": "string",
+                    "description": "Optional reason for cancellation"
+                }
+            },
+            "required": ["confirmation_number"]
         }
     },
     "general_query": {
@@ -106,7 +196,7 @@ def call_tool(name: str, args: Optional[Dict[str, Any]] = None) -> Dict[str, Any
     if args is None:
         args = {}
     
-    
+    # Validate tool exists
     if name not in tools:
         return {
             "error": f"Unknown tool: {name}",
@@ -114,7 +204,7 @@ def call_tool(name: str, args: Optional[Dict[str, Any]] = None) -> Dict[str, Any
         }
     
     try:
-        
+        # Route to appropriate tool handler
         if name == "generate_diet":
             preferences = args.get("preferences")
             if not preferences:
@@ -139,6 +229,49 @@ def call_tool(name: str, args: Optional[Dict[str, Any]] = None) -> Dict[str, Any
                 date=date,
                 time=time,
                 specialty=args.get("specialty"),
+                reason=args.get("reason"),
+                doctor_id=args.get("doctor_id")
+            )
+
+        elif name == "get_doctors":
+            return doctors.get_doctors(
+                specialty=args.get("specialty")
+            )
+
+        elif name == "get_available_slots":
+            specialty = args.get("specialty")
+            date = args.get("date")
+            
+            if not specialty or not date:
+                return {"error": "Missing required parameters: specialty and date"}
+            
+            return doctors.get_available_slots(
+                specialty=specialty,
+                date=date,
+                doctor_id=args.get("doctor_id")
+            )
+
+        elif name == "get_doctor_schedule":
+            doctor_id = args.get("doctor_id")
+            if not doctor_id:
+                return {"error": "Missing required parameter: doctor_id"}
+            
+            return doctors.get_doctor_schedule(doctor_identifier=doctor_id)
+
+        elif name == "get_appointment":
+            confirmation_number = args.get("confirmation_number")
+            if not confirmation_number:
+                return {"error": "Missing required parameter: confirmation_number"}
+            
+            return booking.get_appointment(confirmation_number=confirmation_number)
+
+        elif name == "cancel_appointment":
+            confirmation_number = args.get("confirmation_number")
+            if not confirmation_number:
+                return {"error": "Missing required parameter: confirmation_number"}
+            
+            return booking.cancel_appointment(
+                confirmation_number=confirmation_number,
                 reason=args.get("reason")
             )
             

@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthcare Assistant - AI Chat</title>
+    <title>Healthcare Assistant</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -24,872 +20,1506 @@
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             height: 95vh;
         }
 
+        /* ── Header ── */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 25px 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 0.95em;
-        }
-
-        .main-content {
             padding: 20px 30px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .header h1 { font-size: 1.8em; margin-bottom: 4px; }
+        .header p  { opacity: 0.9; font-size: 0.9em; }
+
+        /* ── Tool Toolbar ── */
+        .tool-toolbar {
+            display: flex;
+            gap: 10px;
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            flex-shrink: 0;
+        }
+        .tool-toolbar span {
+            font-size: 0.82em;
+            color: #6c757d;
+            align-self: center;
+            white-space: nowrap;
+        }
+        .tool-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            font-size: 0.88em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tool-btn.booking {
+            background: #e8f5e9;
+            border-color: #43a047;
+            color: #2e7d32;
+        }
+        .tool-btn.booking:hover {
+            background: #43a047;
+            color: white;
+        }
+        .tool-btn.diet {
+            background: #fff3e0;
+            border-color: #fb8c00;
+            color: #e65100;
+        }
+        .tool-btn.diet:hover {
+            background: #fb8c00;
+            color: white;
+        }
+
+        /* ── Chat area ── */
+        .main-content {
+            padding: 16px 24px 16px;
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
-
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
         .messages-area {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 16px;
             background: #f8f9fa;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
+        /* ── Messages ── */
         .message {
-            max-width: 75%;
-            padding: 12px 18px;
+            max-width: 78%;
+            padding: 11px 16px;
             border-radius: 18px;
             word-wrap: break-word;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.25s ease;
         }
-
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
-
         .message.user {
             align-self: flex-end;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-bottom-right-radius: 4px;
         }
-
         .message.assistant {
             align-self: flex-start;
             background: white;
             border: 1px solid #e9ecef;
             border-bottom-left-radius: 4px;
         }
-
         .message.system {
             align-self: center;
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            color: #856404;
-            font-size: 0.9em;
-            max-width: 85%;
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #0d47a1;
+            font-size: 0.85em;
+            max-width: 88%;
             text-align: center;
+            border-radius: 8px;
         }
+        .message-content { white-space: pre-wrap; line-height: 1.55; }
+        .message-time { font-size: 0.73em; opacity: 0.65; margin-top: 4px; }
 
-        .message-content {
-            white-space: pre-wrap;
-            line-height: 1.5;
-        }
-
-        .message-time {
-            font-size: 0.75em;
-            opacity: 0.7;
-            margin-top: 5px;
-        }
-
-        .input-area {
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-        }
-
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-
+        /* ── Input row ── */
+        .input-area { display: flex; gap: 10px; align-items: flex-end; position: relative; }
+        .input-wrapper { flex: 1; position: relative; }
         #userInput {
             width: 100%;
-            padding: 14px 18px;
+            padding: 13px 18px;
             border: 2px solid #dee2e6;
-            border-radius: 25px;
+            border-radius: 24px;
             font-size: 1em;
             font-family: inherit;
             resize: none;
-            max-height: 120px;
+            max-height: 110px;
             overflow-y: auto;
-            transition: border-color 0.3s;
+            transition: border-color 0.25s;
         }
-
-        #userInput:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
+        #userInput:focus { outline: none; border-color: #667eea; }
         .send-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 14px 28px;
-            font-size: 1.1em;
+            padding: 13px 24px;
+            font-size: 1em;
             font-weight: 600;
-            border-radius: 25px;
+            border-radius: 24px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s;
             white-space: nowrap;
         }
-
         .send-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 18px rgba(102,126,234,0.4);
         }
-
-        .send-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .examples {
+        .send-btn:disabled { background: #adb5bd; cursor: not-allowed; transform: none; }
+        
+        /* ── Tools Menu Button ── */
+        .tools-menu-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
         }
+        .tools-menu-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        
+        .tools-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            padding: 12px;
+            min-width: 240px;
+            z-index: 100;
+            animation: slideUp 0.2s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tools-dropdown.show { display: block; }
+        
+        .tools-dropdown-title {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #667eea;
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 8px;
+        }
+        
+        .tool-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.92em;
+            color: #333;
+        }
+        .tool-option:hover { background: #f5f5f5; }
+        .tool-option-icon { font-size: 1.2em; }
+        .tool-option-text { font-weight: 500; }
 
+        /* ── Welcome ── */
+        .welcome-message { text-align: center; padding: 32px 20px; color: #6c757d; }
+        .welcome-message h2 { margin-bottom: 12px; color: #495057; }
+        .welcome-icon { font-size: 2.8em; margin-bottom: 12px; }
+        .examples { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
         .example-chip {
             background: white;
             border: 1px solid #dee2e6;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.85em;
+            padding: 7px 14px;
+            border-radius: 18px;
+            font-size: 0.83em;
             cursor: pointer;
             transition: all 0.2s;
         }
+        .example-chip:hover { background: #667eea; color: white; border-color: #667eea; }
 
-        .example-chip:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
+        /* ── Typing ── */
+        .typing-indicator { display: flex; gap: 4px; padding: 10px 14px; }
+        .typing-dot { width: 7px; height: 7px; background: #667eea; border-radius: 50%; animation: typingBounce 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%,60%,100% { transform: translateY(0); }
+            30%          { transform: translateY(-9px); }
         }
 
-        .typing-indicator {
+        /* ── Modal overlay ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+
+        .modal-card {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+            animation: modalIn 0.25s ease;
+            overflow: hidden;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.94) translateY(16px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #e9ecef;
             display: flex;
-            gap: 4px;
-            padding: 10px 15px;
+            align-items: center;
+            justify-content: space-between;
         }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: #667eea;
+        .modal-header h2 { font-size: 1.15em; color: #212529; display: flex; align-items: center; gap: 8px; }
+        .modal-close {
+            width: 30px; height: 30px;
+            border: none;
+            background: #f1f3f5;
             border-radius: 50%;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-            }
-            30% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .welcome-message {
-            text-align: center;
-            padding: 40px 20px;
+            cursor: pointer;
+            font-size: 1.1em;
             color: #6c757d;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
         }
+        .modal-close:hover { background: #dee2e6; }
 
-        .welcome-message h2 {
-            margin-bottom: 15px;
+        .modal-body { padding: 20px 24px; }
+
+        /* ── Form styles ── */
+        .form-row { margin-bottom: 16px; }
+        .form-row label {
+            display: block;
+            font-size: 0.85em;
+            font-weight: 600;
             color: #495057;
+            margin-bottom: 6px;
+        }
+        .form-row label .required { color: #dc3545; margin-left: 3px; }
+        .form-row label .optional {
+            font-weight: 400;
+            color: #adb5bd;
+            font-size: 0.9em;
+            margin-left: 4px;
+        }
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+            color: #212529;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-row input:focus,
+        .form-row select:focus,
+        .form-row textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+        }
+        .form-row textarea { resize: vertical; min-height: 72px; }
+        .form-row select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c757d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+        .form-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        .form-hint { font-size: 0.78em; color: #868e96; margin-top: 4px; }
+
+        /* ── Allergy tag input ── */
+        .allergy-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px 10px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 8px;
+            min-height: 42px;
+            cursor: text;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .allergy-tags:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+        }
+        .allergy-tags .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            color: #e65100;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.82em;
+            font-weight: 500;
+        }
+        .allergy-tags .tag button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #e65100;
+            font-size: 1em;
+            padding: 0 2px;
+            line-height: 1;
+        }
+        .allergy-tags input {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            padding: 2px 4px !important;
+            font-size: 0.88em;
+            min-width: 120px;
+            flex: 1;
         }
 
-        .welcome-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
+        /* ── Modal footer ── */
+        .modal-footer {
+            padding: 14px 24px 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            border-top: 1px solid #e9ecef;
         }
-
-        .hidden {
-            display: none !important;
+        .btn-cancel {
+            padding: 10px 22px;
+            border: 1.5px solid #dee2e6;
+            background: white;
+            color: #495057;
+            border-radius: 8px;
+            font-size: 0.92em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
         }
+        .btn-cancel:hover { background: #f1f3f5; }
+        .btn-submit {
+            padding: 10px 28px;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-size: 0.92em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-submit.booking { background: linear-gradient(135deg, #43a047, #2e7d32); }
+        .btn-submit.booking:hover { box-shadow: 0 6px 16px rgba(67,160,71,0.4); }
+        .btn-submit.diet { background: linear-gradient(135deg, #fb8c00, #e65100); }
+        .btn-submit.diet:hover { box-shadow: 0 6px 16px rgba(251,140,0,0.4); }
+        .btn-submit:disabled { background: #adb5bd; cursor: not-allowed; box-shadow: none; }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.5em;
-            }
-            
-            .message {
-                max-width: 85%;
-            }
+        .field-error {
+            font-size: 0.78em;
+            color: #dc3545;
+            margin-top: 4px;
+            display: none;
+        }
+        .field-error.visible { display: block; }
+        .form-row input.invalid,
+        .form-row select.invalid { border-color: #dc3545; }
 
-            .examples {
-                flex-direction: column;
-            }
+        .hidden { display: none !important; }
 
-            .example-chip {
-                text-align: center;
-            }
-
-            .container {
-                height: 100vh;
-                border-radius: 0;
-            }
-
-            body {
-                padding: 0;
-            }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4em; }
+            .message { max-width: 88%; }
+            .container { height: 100vh; border-radius: 0; }
+            body { padding: 0; }
+            .form-two-col { grid-template-columns: 1fr; }
+            .tool-toolbar { flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🏥 Healthcare Assistant</h1>
-            <p>AI-Powered Health Management System</p>
-        </div>
+<div class="container">
 
-        <div class="main-content">
-            <div class="chat-container">
-                <div class="messages-area" id="messagesArea">
-                    <div class="welcome-message" id="welcomeMessage">
-                        <div class="welcome-icon">🏥</div>
-                        <h2>Hello! I'm your Healthcare Assistant</h2>
-                        <p>Ask me anything about health, nutrition, or book an appointment!</p>
-                        
-                        <div class="examples" style="margin-top: 25px; justify-content: center;">
-                            <div class="example-chip" onclick="fillExample('What are the benefits of drinking water?')">
-                                💧 Benefits of water
-                            </div>
-                            <div class="example-chip" onclick="fillExample('Generate a vegetarian diet plan for 2000 calories')">
-                                🥗 Vegetarian diet plan
-                            </div>
-                            <div class="example-chip" onclick="fillExample('Book an appointment for PAT001 tomorrow at 10 AM for general checkup')">
-                                📅 Book appointment
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Header -->
+    <div class="header">
+        <h1>🏥 Healthcare Assistant</h1>
+        <p>AI-Powered Health Management System</p>
+    </div>
 
-                <div class="input-area">
-                    <div class="input-wrapper">
-                        <textarea 
-                            id="userInput" 
-                            placeholder="Type your message... (e.g., 'Give me a keto diet plan' or 'Book appointment for PAT123')"
-                            rows="1"
-                            onkeydown="handleKeyPress(event)"
-                        ></textarea>
-                    </div>
-                    <button class="send-btn" onclick="sendMessage()" id="sendBtn">Send 🚀</button>
+    <!-- Tool Toolbar -->
+    <div class="tool-toolbar">
+        <span>Quick Actions:</span>
+        <button class="tool-btn booking" onclick="openBookingModal()">
+            📅 Book Appointment
+        </button>
+        <button class="tool-btn diet" onclick="openDietModal()">
+            🥗 Diet Plan
+        </button>
+    </div>
+
+    <!-- Chat -->
+    <div class="main-content">
+        <div class="messages-area" id="messagesArea">
+            <div class="welcome-message" id="welcomeMessage">
+                <div class="welcome-icon">🏥</div>
+                <h2>Hello! I'm your Healthcare Assistant</h2>
+                <p>Use the buttons above to book an appointment or generate a diet plan.<br>Or ask me any health question below.</p>
+                <div class="examples">
+                    <div class="example-chip" onclick="fillExample('Show me cardiologists')">👨‍⚕️ Find doctors</div>
+                    <div class="example-chip" onclick="fillExample('What slots are available for dermatology tomorrow?')">📅 Check availability</div>
+                    <div class="example-chip" onclick="fillExample('What are the symptoms of diabetes?')">🩺 Health questions</div>
+                    <div class="example-chip" onclick="fillExample('How can I improve my sleep quality?')">😴 Wellness tips</div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        const API_BASE = 'http://localhost:8000';
-        let isProcessing = false;
-        
-        // Booking conversation state
-        let bookingState = {
-            active: false,
-            step: 0,
-            data: {}
-        };
-
-        function fillExample(text) {
-            document.getElementById('userInput').value = text;
-            document.getElementById('userInput').focus();
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const message = input.value.trim();
-            
-            if (!message || isProcessing) return;
-            
-            document.getElementById('welcomeMessage').classList.add('hidden');
-            addMessage(message, 'user');
-            input.value = '';
-            input.style.height = 'auto';
-            
-            // Check if we're in an active booking conversation
-            if (bookingState.active) {
-                await handleBookingResponse(message);
-                return;
-            }
-            
-            // Normal flow - analyze and process
-            const { tool, args } = analyzeQuery(message);
-            
-            // If it's a booking request, start interactive flow
-            if (tool === 'book_appointment') {
-                await startBookingFlow(args);
-                return;
-            }
-            
-            let toolName = {
-                'general_query': '💬 General Health Query',
-                'generate_diet': '🥗 Diet Plan Generator',
-                'book_appointment': '📅 Appointment Booking'
-            }[tool] || 'Processing';
-            
-            addMessage(`Using: ${toolName}`, 'system');
-            
-            const typingId = showTypingIndicator();
-            isProcessing = true;
-            document.getElementById('sendBtn').disabled = true;
-            
-            try {
-                const response = await fetch(`${API_BASE}/mcp/call`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: tool, args })
-                });
-                
-                const result = await response.json();
-                removeTypingIndicator(typingId);
-                const formattedResponse = formatResponse(result, tool);
-                addMessage(formattedResponse, 'assistant');
-                
-            } catch (error) {
-                removeTypingIndicator(typingId);
-                addMessage(`❌ Error: ${error.message}`, 'assistant');
-            } finally {
-                isProcessing = false;
-                document.getElementById('sendBtn').disabled = false;
-            }
-        }
-
-        function analyzeQuery(query) {
-            const lowerQuery = query.toLowerCase();
-            
-            // Check for appointment booking
-            if (lowerQuery.match(/book|schedule|reserve|make.*appointment|doctor visit|consultation/)) {
-                return detectBookingDetails(query);
-            }
-            
-            // Check for diet plan keywords
-            if (lowerQuery.match(/diet|meal plan|nutrition|food|eat|vegetarian|vegan|keto|calories|weight loss|menu/)) {
-                return detectDietDetails(query);
-            }
-            
-            // Default to general health query
-            return { tool: 'general_query', args: { question: query } };
-        }
-
-        function detectBookingDetails(query) {
-            const args = {};
-            
-            const patientMatch = query.match(/PAT\w+/i);
-            if (patientMatch) {
-                args.user_id = patientMatch[0].toUpperCase();
-            } else {
-                const idMatch = query.match(/(?:patient|id|for)\s+(\w+)/i);
-                if (idMatch) args.user_id = idMatch[1];
-            }
-            
-            let dayStr = '';
-            let timeStr = '';
-            
-            // Extract day/date information
-            const dayPattern = /(tomorrow|today|next week|monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i;
-            const dayMatch = query.match(dayPattern);
-            if (dayMatch) dayStr += ' ' + dayMatch[1];
-            
-            // Extract time information - more specific patterns to avoid matching IDs
-            // Priority 1: Times with separator (colon or dot) AND AM/PM (e.g., "12.05pm", "10:30 AM")
-            const timeWithSeparatorAndMeridiem = /(?:at\s+)?(\d{1,2})[:.](\d{2})\s*(AM|PM)/i;
-            let timeMatch = query.match(timeWithSeparatorAndMeridiem);
-            console.log('DEBUG: Priority 1 match:', timeMatch);
-            
-            // Priority 2: Times with AM/PM but no minutes (e.g., "10 AM", "2pm")
-            if (!timeMatch) {
-                const timeWithMeridiem = /(?:at\s+)?(\d{1,2})\s*(AM|PM)/i;
-                timeMatch = query.match(timeWithMeridiem);
-                console.log('DEBUG: Priority 2 match:', timeMatch);
-            }
-            
-            // Priority 3: Times with separator but no AM/PM (e.g., "12.05", "10:30")
-            if (!timeMatch) {
-                const timeWithSeparator = /(?:at\s+)?(\d{1,2})[:.](\d{2})/i;
-                timeMatch = query.match(timeWithSeparator);
-                console.log('DEBUG: Priority 3 match:', timeMatch);
-            }
-            
-            if (timeMatch) {
-                // Reconstruct time string with proper format
-                const hour = timeMatch[1];
-                const minute = timeMatch[2] || '00';
-                const meridiem = timeMatch[3] || '';
-                timeStr += ' ' + hour + ':' + minute + meridiem;
-                console.log('DEBUG: timeStr constructed:', timeStr);
-            }
-            
-            console.log('DEBUG: Final dayStr:', dayStr);
-            console.log('DEBUG: Final timeStr:', timeStr);
-            
-            if (dayStr || timeStr) {
-                const { date, time } = parseDateTime(dayStr.trim(), timeStr.trim());
-                args.date = date;
-                args.time = time;
-            }
-            
-            const specialties = ['cardiology', 'dermatology', 'orthopedics', 'pediatrics', 'neurology', 'general'];
-            for (const specialty of specialties) {
-                if (query.toLowerCase().includes(specialty)) {
-                    args.specialty = specialty === 'general' ? 'general-practice' : specialty;
-                    break;
-                }
-            }
-            
-            const reasonMatch = query.match(/(?:for|regarding)\s+(.+?)(?:\s+at|\s+on|\s+tomorrow|$)/i);
-            if (reasonMatch) args.reason = reasonMatch[1].trim();
-            
-            return { tool: 'book_appointment', args };
-        }
-
-        function detectDietDetails(query) {
-            const args = {};
-            
-            const preferences = {
-                'vegetarian': 'vegetarian', 'vegan': 'vegan', 'keto': 'keto',
-                'low-carb': 'low-carb', 'low carb': 'low-carb',
-                'high-protein': 'high-protein', 'high protein': 'high-protein',
-                'diabetic': 'diabetic-friendly',
-                'gluten-free': 'gluten-free', 'gluten free': 'gluten-free',
-                'balanced': 'balanced'
-            };
-            
-            for (const [key, value] of Object.entries(preferences)) {
-                if (query.toLowerCase().includes(key)) {
-                    args.preferences = value;
-                    break;
-                }
-            }
-            
-            if (!args.preferences) args.preferences = 'balanced';
-            
-            const calorieMatch = query.match(/(\d{3,4})\s*(?:cal|calorie)/i);
-            if (calorieMatch) args.calories = parseInt(calorieMatch[1]);
-            
-            const allergyMatch = query.match(/(?:allergy|allergies|allergic to|avoid)\s+(?:to\s+)?([a-z\s,]+?)(?:\s+and|\s+$|\.)/i);
-            if (allergyMatch) {
-                args.allergies = allergyMatch[1].split(/,|\s+and\s+/).map(a => a.trim()).filter(a => a);
-            }
-            
-            return { tool: 'generate_diet', args };
-        }
-
-        function parseDateTime(dayStr, timeStr) {
-            const targetDate = new Date();
-            
-            // Handle day-of-week specifications (today, tomorrow, next week monday, etc.)
-            const dayMap = {
-                'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
-                'thursday': 4, 'friday': 5, 'saturday': 6
-            };
-            
-            const lowerDayStr = dayStr.toLowerCase();
-            
-            // Check for "next week" + day
-            if (lowerDayStr.includes('next week')) {
-                for (const [dayName, dayNum] of Object.entries(dayMap)) {
-                    if (lowerDayStr.includes(dayName)) {
-                        const currentDay = targetDate.getDay();
-                        let daysUntilTarget = dayNum - currentDay;
-                        if (daysUntilTarget <= 0) {
-                            daysUntilTarget += 7;
-                        }
-                        targetDate.setDate(targetDate.getDate() + daysUntilTarget);
-                        break;
-                    }
-                }
-            } else if (lowerDayStr.includes('tomorrow')) {
-                targetDate.setDate(targetDate.getDate() + 1);
-            } else if (lowerDayStr.includes('today')) {
-                // Keep today
-            }
-            
-            // Parse time - handle both 12:05pm and 12.05pm formats
-            let hour = 10; // Default to 10 AM
-            let minute = 0;
-            
-            if (timeStr) {
-                const hourMatch = timeStr.match(/(\d{1,2})\s*[:.]?(\d{2})?\s*(AM|PM)?/i);
-                if (hourMatch) {
-                    hour = parseInt(hourMatch[1]);
-                    minute = hourMatch[2] ? parseInt(hourMatch[2]) : 0;
-                    const meridiem = hourMatch[3] ? hourMatch[3].toUpperCase() : null;
-                    
-                    // Handle AM/PM
-                    if (meridiem === 'PM' && hour !== 12) hour += 12;
-                    if (meridiem === 'AM' && hour === 12) hour = 0;
-                    
-                    // If no AM/PM specified and hour > 12, assume 24-hour format
-                    if (!meridiem && hour > 12 && hour <= 23) {
-                        // Keep as is (24-hour format)
-                    } else if (!meridiem && hour <= 12) {
-                        // Default to AM if not specified
-                    }
-                }
-            }
-            
-            // Round minutes to nearest 15-minute interval
-            minute = Math.round(minute / 15) * 15;
-            
-            // Set the time
-            targetDate.setHours(hour, minute, 0, 0);
-            
-            // Format date as YYYY-MM-DD
-            const year = targetDate.getFullYear();
-            const month = String(targetDate.getMonth() + 1).padStart(2, '0');
-            const day = String(targetDate.getDate()).padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
-            
-            // Format time as HH:MM
-            const hourStr = String(targetDate.getHours()).padStart(2, '0');
-            const minuteStr = String(targetDate.getMinutes()).padStart(2, '0');
-            const roundedTimeStr = `${hourStr}:${minuteStr}`;
-            
-            console.log('DEBUG: Parsed date:', dateStr);
-            console.log('DEBUG: Rounded time:', roundedTimeStr);
-            
-            return { date: dateStr, time: roundedTimeStr };
-        }
-
-        function addMessage(content, type) {
-            const messagesArea = document.getElementById('messagesArea');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-            contentDiv.innerHTML = content;
-            messageDiv.appendChild(contentDiv);
-            
-            if (type !== 'system') {
-                const timeDiv = document.createElement('div');
-                timeDiv.className = 'message-time';
-                timeDiv.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                messageDiv.appendChild(timeDiv);
-            }
-            
-            messagesArea.appendChild(messageDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
-        function showTypingIndicator() {
-            const messagesArea = document.getElementById('messagesArea');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message assistant';
-            typingDiv.id = 'typing-' + Date.now();
-            typingDiv.innerHTML = `
-                <div class="typing-indicator">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea
+                    id="userInput"
+                    placeholder="Ask about doctors, appointments, or health questions..."
+                    rows="1"
+                    onkeydown="handleKeyPress(event)"
+                ></textarea>
+                <!-- Tools Dropdown Menu -->
+                <div class="tools-dropdown" id="toolsDropdown">
+                    <div class="tools-dropdown-title">🛠️ Quick Tools</div>
+                    <div class="tool-option" onclick="useTool('find_doctors')">
+                        <span class="tool-option-icon">👨‍⚕️</span>
+                        <span class="tool-option-text">Find Doctors</span>
+                    </div>
+                    <div class="tool-option" onclick="useTool('check_slots')">
+                        <span class="tool-option-icon">📅</span>
+                        <span class="tool-option-text">Check Available Slots</span>
+                    </div>
+                    <div class="tool-option" onclick="useTool('doctor_schedule')">
+                        <span class="tool-option-icon">📋</span>
+                        <span class="tool-option-text">Doctor Schedule</span>
+                    </div>
+                    <div class="tool-option" onclick="useTool('book_appointment')">
+                        <span class="tool-option-icon">📅</span>
+                        <span class="tool-option-text">Book Appointment</span>
+                    </div>
+                    <div class="tool-option" onclick="useTool('diet_plan')">
+                        <span class="tool-option-icon">🥗</span>
+                        <span class="tool-option-text">Diet Plan</span>
+                    </div>
                 </div>
-            `;
-            
-            messagesArea.appendChild(typingDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-            return typingDiv.id;
+            </div>
+            <button class="tools-menu-btn" onclick="toggleToolsMenu()" id="toolsMenuBtn" title="Quick Tools">⚡</button>
+            <button class="send-btn" onclick="sendMessage()" id="sendBtn">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     BOOKING MODAL
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="bookingModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>📅 Book an Appointment</h2>
+            <button class="modal-close" onclick="closeBookingModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="bookingForm" novalidate>
+
+                <div class="form-row">
+                    <label for="b_patient_id">Patient ID <span class="required">*</span></label>
+                    <input type="text" id="b_patient_id" placeholder="e.g. PAT001" autocomplete="off" />
+                    <div class="field-error" id="b_patient_id_err">Patient ID is required.</div>
+                </div>
+
+                <div class="form-two-col">
+                    <div class="form-row">
+                        <label for="b_date">Date <span class="required">*</span></label>
+                        <input type="date" id="b_date" />
+                        <div class="field-error" id="b_date_err">Please select a date.</div>
+                    </div>
+                    <div class="form-row">
+                        <label for="b_time">Time <span class="required">*</span></label>
+                        <select id="b_time">
+                            <option value="">-- Select time --</option>
+                        </select>
+                        <div class="field-error" id="b_time_err">Please select a time slot.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label for="b_specialty">Specialty <span class="optional">(optional)</span></label>
+                    <select id="b_specialty">
+                        <option value="general-practice">General Practice</option>
+                        <option value="cardiology">Cardiology</option>
+                        <option value="dermatology">Dermatology</option>
+                        <option value="neurology">Neurology</option>
+                        <option value="orthopedics">Orthopedics</option>
+                        <option value="pediatrics">Pediatrics</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="b_reason">Reason for Visit <span class="optional">(optional)</span></label>
+                    <textarea id="b_reason" placeholder="e.g. Annual checkup, Fever, Headache..."></textarea>
+                </div>
+
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeBookingModal()">Cancel</button>
+            <button type="button" class="btn-submit booking" id="bookingSubmitBtn" onclick="submitBooking()">Confirm Booking</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     DIET MODAL
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="dietModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>🥗 Generate Diet Plan</h2>
+            <button class="modal-close" onclick="closeDietModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="dietForm" novalidate>
+
+                <div class="form-row">
+                    <label for="d_preference">Dietary Preference <span class="required">*</span></label>
+                    <select id="d_preference">
+                        <option value="balanced">Balanced</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="keto">Keto</option>
+                        <option value="low-carb">Low-Carb</option>
+                        <option value="high-protein">High-Protein</option>
+                        <option value="diabetic-friendly">Diabetic-Friendly</option>
+                        <option value="gluten-free">Gluten-Free</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="d_calories">Target Daily Calories <span class="optional">(optional)</span></label>
+                    <input type="number" id="d_calories" placeholder="e.g. 2000" min="500" max="5000" step="50" />
+                    <div class="form-hint">Leave blank to use the standard 2000 kcal recommendation.</div>
+                    <div class="field-error" id="d_calories_err">Must be between 500 and 5000.</div>
+                </div>
+
+                <div class="form-row">
+                    <label>Allergies / Restrictions <span class="optional">(optional)</span></label>
+                    <div class="allergy-tags" id="allergyTagContainer" onclick="document.getElementById('allergyInput').focus()">
+                        <input type="text" id="allergyInput" placeholder="Type and press Enter or comma..." />
+                    </div>
+                    <div class="form-hint">Add items one at a time: type an allergen and press <strong>Enter</strong> or <strong>,</strong></div>
+                </div>
+
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeDietModal()">Cancel</button>
+            <button type="button" class="btn-submit diet" id="dietSubmitBtn" onclick="submitDiet()">Generate Plan</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = '';  // Same origin - frontend served by backend
+    let isProcessing = false;
+    let allergyList = [];
+
+    // ── Populate time slots (08:00–17:45, 15-min intervals) ──────────────
+    (function populateTimeSlots() {
+        const sel = document.getElementById('b_time');
+        for (let h = 8; h <= 17; h++) {
+            for (let m = 0; m < 60; m += 15) {
+                if (h === 17 && m > 45) break;
+                const hh = String(h).padStart(2, '0');
+                const mm = String(m).padStart(2, '0');
+                const val = `${hh}:${mm}`;
+                const label = formatTimeLabel(h, m);
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = label;
+                sel.appendChild(opt);
+            }
         }
+    })();
 
-        function removeTypingIndicator(id) {
-            const element = document.getElementById(id);
-            if (element) element.remove();
+    function formatTimeLabel(h, m) {
+        const period = h < 12 ? 'AM' : 'PM';
+        const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
+        return `${String(displayH).padStart(2,'0')}:${String(m).padStart(2,'0')} ${period}`;
+    }
+
+    // Set date input min to today
+    (function setMinDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth()+1).padStart(2,'0');
+        const dd = String(today.getDate()).padStart(2,'0');
+        document.getElementById('b_date').min = `${yyyy}-${mm}-${dd}`;
+    })();
+
+    // ── Allergy tag input ─────────────────────────────────────────────────
+    document.getElementById('allergyInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addAllergyTag(this.value.trim());
+            this.value = '';
+        } else if (e.key === 'Backspace' && this.value === '' && allergyList.length > 0) {
+            removeAllergyTag(allergyList[allergyList.length - 1]);
         }
+    });
 
-        function formatResponse(data, tool) {
-            let output = '';
-            
-            if (data.error) {
-                output += `<div style="padding: 16px; background: linear-gradient(135deg, #fee 0%, #fdd 100%); border-left: 4px solid #d32f2f; border-radius: 8px; margin: 12px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">`;
-                output += `<div style="display: flex; align-items: center; margin-bottom: 8px;">`;
-                output += `<span style="font-size: 20px; margin-right: 8px;">❌</span>`;
-                output += `<strong style="color: #c62828; font-size: 16px;">Error</strong>`;
-                output += `</div>`;
-                output += `<div style="color: #333; line-height: 1.6;">${data.message || 'An error occurred'}</div>`;
-                
-                if (data.fallback) {
-                    output += `<div style="margin-top: 12px; padding: 10px; background: rgba(255,255,255,0.6); border-radius: 4px; color: #555;">`;
-                    output += `<strong>ℹ️ Alternative:</strong> ${data.fallback}`;
-                    output += `</div>`;
-                }
-                
-                if (data.suggestion) {
-                    output += `<div style="margin-top: 12px; padding: 12px; background: #e3f2fd; border-left: 3px solid #1976d2; border-radius: 4px;">`;
-                    output += `<div style="color: #1565c0; font-weight: 600; margin-bottom: 6px;">💡 Suggestion</div>`;
-                    output += `<div style="color: #424242; white-space: pre-line;">${data.suggestion}</div>`;
-                    output += `</div>`;
-                }
-                
-                output += `</div>`;
-                return output;
-            }
-            
-            if (tool === 'book_appointment' && data.confirmation_number) {
-                output += `✅ ${data.message}\n\n`;
-                output += `🎫 Confirmation: ${data.confirmation_number}\n\n`;
-                
-                if (data.details) {
-                    output += `📋 Details:\n`;
-                    for (const [key, value] of Object.entries(data.details)) {
-                        output += `   • ${key}: ${value}\n`;
-                    }
-                }
-                
-                if (data.instructions) {
-                    output += `\n📌 Instructions:\n`;
-                    data.instructions.forEach(inst => output += `   ${inst}\n`);
-                }
-            }
-            else if (tool === 'generate_diet' && data.plan) {
-                output += `✅ ${data.message}\n\n`;
-                
-                if (typeof data.plan === 'string') {
-                    output += data.plan;
-                } else {
-                    output += '📅 Your Meal Plan:\n\n';
-                    for (const [meal, food] of Object.entries(data.plan)) {
-                        output += `${meal}:\n${food}\n\n`;
-                    }
-                }
-                
-                if (data.preference) output += `\n🥗 Preference: ${data.preference}\n`;
-                if (data.daily_calories) output += `📊 Calories: ${data.daily_calories}\n`;
-                
-                if (data.tips) {
-                    output += '\n💡 Tips:\n';
-                    data.tips.forEach(tip => output += `   ${tip}\n`);
-                }
-            }
-            else if (tool === 'general_query' && data.answer) {
-                output += data.answer;
-                if (data.disclaimer) output += `\n\n${data.disclaimer}`;
-            }
-            else {
-                output = JSON.stringify(data, null, 2);
-            }
-            
-            return output.trim();
+    function addAllergyTag(value) {
+        const cleaned = value.replace(/,/g, '').trim();
+        if (!cleaned || allergyList.includes(cleaned.toLowerCase())) return;
+        allergyList.push(cleaned.toLowerCase());
+        renderAllergyTags();
+    }
+
+    function removeAllergyTag(tag) {
+        allergyList = allergyList.filter(t => t !== tag);
+        renderAllergyTags();
+    }
+
+    function renderAllergyTags() {
+        const container = document.getElementById('allergyTagContainer');
+        const input = document.getElementById('allergyInput');
+        // Remove old tags
+        container.querySelectorAll('.tag').forEach(el => el.remove());
+        allergyList.forEach(tag => {
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.innerHTML = `${tag} <button type="button" onclick="removeAllergyTag('${tag}')">×</button>`;
+            container.insertBefore(span, input);
+        });
+    }
+
+    // ── Modal open/close ──────────────────────────────────────────────────
+    function openBookingModal() {
+        document.getElementById('bookingModal').classList.add('open');
+        clearBookingErrors();
+    }
+    function closeBookingModal() {
+        document.getElementById('bookingModal').classList.remove('open');
+        document.getElementById('bookingForm').reset();
+        clearBookingErrors();
+    }
+
+    function openDietModal() {
+        document.getElementById('dietModal').classList.add('open');
+        allergyList = [];
+        renderAllergyTags();
+        document.getElementById('dietForm').reset();
+    }
+    function closeDietModal() {
+        document.getElementById('dietModal').classList.remove('open');
+    }
+
+    // Close on overlay click
+    document.getElementById('bookingModal').addEventListener('click', function(e) {
+        if (e.target === this) closeBookingModal();
+    });
+    document.getElementById('dietModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDietModal();
+    });
+
+    // ── Booking form validation & submit ──────────────────────────────────
+    function clearBookingErrors() {
+        ['b_patient_id','b_date','b_time'].forEach(id => {
+            document.getElementById(id).classList.remove('invalid');
+            document.getElementById(id + '_err').classList.remove('visible');
+        });
+    }
+
+    async function submitBooking() {
+        clearBookingErrors();
+        const patientId = document.getElementById('b_patient_id').value.trim();
+        const date      = document.getElementById('b_date').value;
+        const time      = document.getElementById('b_time').value;
+        const specialty = document.getElementById('b_specialty').value;
+        const reason    = document.getElementById('b_reason').value.trim();
+
+        let valid = true;
+        if (!patientId) {
+            document.getElementById('b_patient_id').classList.add('invalid');
+            document.getElementById('b_patient_id_err').classList.add('visible');
+            valid = false;
         }
-
-        // Booking Flow Functions
-        async function startBookingFlow(initialArgs) {
-            bookingState.active = true;
-            bookingState.step = 0;
-            bookingState.data = initialArgs || {};
-            
-            console.log('Starting booking flow with initial data:', bookingState.data);
-            await askNextQuestion();
+        if (!date) {
+            document.getElementById('b_date').classList.add('invalid');
+            document.getElementById('b_date_err').classList.add('visible');
+            valid = false;
         }
+        if (!time) {
+            document.getElementById('b_time').classList.add('invalid');
+            document.getElementById('b_time_err').classList.add('visible');
+            valid = false;
+        }
+        if (!valid) return;
 
-        async function askNextQuestion() {
-            const questions = [
-                {
-                    field: 'user_id',
-                    question: '👤 Please provide your Patient ID or Name:',
-                    placeholder: 'e.g., PAT123 or John Doe'
-                },
-                {
-                    field: 'specialty',
-                    question: '🏥 Which department would you like to visit?',
-                    placeholder: 'e.g., Cardiology, Dermatology, General Practice, Neurology, Orthopedics, Pediatrics'
-                },
-                {
-                    field: 'date',
-                    question: '📅 What date would you like to book?',
-                    placeholder: 'e.g., 2026-01-19, tomorrow, next week Monday'
-                },
-                {
-                    field: 'time',
-                    question: '⏰ What time would you prefer? (Available in 15-minute intervals)',
-                    placeholder: 'e.g., 10:00, 10:15, 2:30 PM, 12.05pm'
-                },
-                {
-                    field: 'reason',
-                    question: '📝 Please describe the reason for your visit (optional):',
-                    placeholder: 'e.g., Annual checkup, Fever, Headache (or type "skip" to skip)'
-                },
-                {
-                    field: 'doctor',
-                    question: '👨‍⚕️ Do you have a preferred doctor? (optional)',
-                    placeholder: 'e.g., Dr. Smith (or type "skip" to skip)'
-                }
-            ];
+        closeBookingModal();
 
-            // Skip already filled fields
-            while (bookingState.step < questions.length) {
-                const currentQ = questions[bookingState.step];
-                if (bookingState.data[currentQ.field]) {
-                    bookingState.step++;
-                } else {
-                    break;
-                }
-            }
+        // Post a summary message in chat
+        document.getElementById('welcomeMessage').classList.add('hidden');
+        addMessage(
+            `📅 Booking appointment — Patient: ${patientId} | ${specialty} | ${date} at ${formatTimeLabel(...time.split(':').map(Number))}`,
+            'user'
+        );
 
-            // If all fields are filled, proceed to booking
-            if (bookingState.step >= questions.length) {
-                await completeBooking();
+        const typingId = showTypingIndicator();
+        isProcessing = true;
+        document.getElementById('sendBtn').disabled = true;
+
+        try {
+            const res = await fetch(`${API_BASE}/mcp/call`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: 'book_appointment',
+                    args: { user_id: patientId, date, time, specialty, reason: reason || undefined }
+                })
+            });
+            const data = await res.json();
+            removeTypingIndicator(typingId);
+            addMessage(formatBookingResponse(data), 'assistant');
+        } catch (err) {
+            removeTypingIndicator(typingId);
+            addMessage(`❌ Network error: ${err.message}`, 'assistant');
+        } finally {
+            isProcessing = false;
+            document.getElementById('sendBtn').disabled = false;
+        }
+    }
+
+    // ── Diet form validation & submit ─────────────────────────────────────
+    async function submitDiet() {
+        const preference = document.getElementById('d_preference').value;
+        const caloriesRaw = document.getElementById('d_calories').value.trim();
+        const calories = caloriesRaw ? parseInt(caloriesRaw) : null;
+
+        // Validate calories range if provided
+        if (caloriesRaw) {
+            const errEl = document.getElementById('d_calories_err');
+            if (!calories || calories < 500 || calories > 5000) {
+                document.getElementById('d_calories').classList.add('invalid');
+                errEl.classList.add('visible');
                 return;
-            }
-
-            const currentQ = questions[bookingState.step];
-            addMessage(`${currentQ.question}\n\n<i style="opacity: 0.7;">${currentQ.placeholder}</i>`, 'assistant');
-        }
-
-        async function handleBookingResponse(response) {
-            const questions = [
-                { field: 'user_id' },
-                { field: 'specialty' },
-                { field: 'date' },
-                { field: 'time' },
-                { field: 'reason', optional: true },
-                { field: 'doctor', optional: true }
-            ];
-
-            const currentQ = questions[bookingState.step];
-
-            
-            if (currentQ.optional && response.toLowerCase() === 'skip') {
-                bookingState.step++;
-                await askNextQuestion();
-                return;
-            }
-
-            if (currentQ.field === 'date') {
-                const { date } = parseDateTime(response, '');
-                bookingState.data.date = date;
-            } else if (currentQ.field === 'time') {
-                const { time } = parseDateTime('', response);
-                bookingState.data.time = time;
-            } else if (currentQ.field === 'specialty') {
-               
-                const specialtyMap = {
-                    'cardiology': 'cardiology',
-                    'dermatology': 'dermatology',
-                    'general': 'general-practice',
-                    'general practice': 'general-practice',
-                    'neurology': 'neurology',
-                    'orthopedics': 'orthopedics',
-                    'pediatrics': 'pediatrics'
-                };
-                const lowerResponse = response.toLowerCase();
-                bookingState.data.specialty = specialtyMap[lowerResponse] || response;
             } else {
-                bookingState.data[currentQ.field] = response;
+                document.getElementById('d_calories').classList.remove('invalid');
+                errEl.classList.remove('visible');
             }
-
-            bookingState.step++;
-            await askNextQuestion();
         }
 
-        async function completeBooking() {
-            addMessage('📋 Booking Summary:', 'assistant');
-            addMessage(`• Patient ID: ${bookingState.data.user_id}`, 'assistant');
-            addMessage(`• Department: ${bookingState.data.specialty}`, 'assistant');
-            addMessage(`• Date: ${bookingState.data.date}`, 'assistant');
-            addMessage(`• Time: ${bookingState.data.time}`, 'assistant');
-            if (bookingState.data.reason) addMessage(`• Reason: ${bookingState.data.reason}`, 'assistant');
-            if (bookingState.data.doctor) addMessage(`• Doctor: ${bookingState.data.doctor}`, 'assistant');
+        closeDietModal();
+
+        document.getElementById('welcomeMessage').classList.add('hidden');
+        const allergyLabel = allergyList.length ? ` | Allergies: ${allergyList.join(', ')}` : '';
+        addMessage(
+            `🥗 Diet plan request — ${preference}${calories ? ` | ${calories} kcal` : ''}${allergyLabel}`,
+            'user'
+        );
+
+        const typingId = showTypingIndicator();
+        isProcessing = true;
+        document.getElementById('sendBtn').disabled = true;
+
+        const args = { preferences: preference };
+        if (calories) args.calories = calories;
+        if (allergyList.length) args.allergies = [...allergyList];
+
+        try {
+            const res = await fetch(`${API_BASE}/mcp/call`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: 'generate_diet', args })
+            });
+            const data = await res.json();
+            removeTypingIndicator(typingId);
+            addMessage(formatDietResponse(data), 'assistant');
+        } catch (err) {
+            removeTypingIndicator(typingId);
+            addMessage(`❌ Network error: ${err.message}`, 'assistant');
+        } finally {
+            isProcessing = false;
+            document.getElementById('sendBtn').disabled = false;
+            allergyList = [];
+        }
+    }
+
+    // ── General health query ──────────────────────────────────────────────
+    function fillExample(text) {
+        document.getElementById('userInput').value = text;
+        document.getElementById('userInput').focus();
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    // ── Intent detection for doctor tools ──────────────────────────────────
+    function detectIntent(message) {
+        const lowerMsg = message.toLowerCase();
+        
+        // Patterns for get_doctors - MORE FLEXIBLE
+        const doctorPatterns = [
+            /(?:show|list|find|get|who are).{0,20}(?:doctor|doctors)/i,
+            /(?:any|which).{0,10}(?:doctor|doctors).{0,20}(?:available|specialist)/i,
+            /(?:cardiologist|dermatologist|neurologist|orthopedic|pediatrician)/i,
+            /(?:specialist|specialty).{0,15}(?:for|in)/i,
+            /(?:need|want|looking for).{0,15}(?:doctor|specialist)/i,
+            /(?:for|about).{0,10}(?:general practice|cardiology|dermatology|neurology|orthopedics|pediatrics).{0,10}(?:doctor|dr)/i,
+            /(?:general practice|cardiology|dermatology|neurology|orthopedics|pediatrics).{0,15}(?:doctor|dr|specialist)/i,
+            /^general practice/i,  // Just "General Practice"
+            /^(?:for|need|want)\s+(?:a\s+)?(?:gp|doctor)/i,  // "For a doctor", "Need doctor"
+            /^for\s+(?:general|cardiology|dermatology|neurology|orthopedics|pediatrics)/i  // "For General..."
+        ];
+        
+        // Patterns for get_available_slots - MORE FLEXIBLE
+        const slotPatterns = [
+            /(?:when|what|check|find).{0,15}(?:slot|slots|availability|available)/i,
+            /(?:appointment|booking).{0,10}(?:slot|time|when|available)/i,
+            /(?:free|open).{0,10}(?:slot|time|appointment)/i,
+            /^(?:slot|slots).{0,20}(?:available|for|in)/i,  // Matches "Slots available for..."
+            /(?:available|slot|slots).{0,15}(?:for|in).{0,10}(?:dermatology|cardiology|neurology|orthopedics|pediatrics|general)/i,
+            /(?:when|what).{0,10}(?:can|could).{0,10}(?:i|we).{0,10}(?:book|schedule|get)/i
+        ];
+        
+        // Patterns for get_doctor_schedule - MORE FLEXIBLE
+        const schedulePatterns = [
+            /(?:schedule|timetable|routine).{0,15}(?:of|for|doctor)/i,
+            /(?:when|what time).{0,10}(?:doctor|dr\.?).{0,15}(?:work|available)/i,
+            /(?:what|when).{0,10}(?:are|is).{0,10}(?:hours|working hours)/i,
+            /(?:working time|work time|work timing|working hours|work hours).{0,20}(?:of|for)/i,  // "working time of Dr..."
+            /(?:what|when).{0,15}(?:is|are).{0,10}(?:the)?\s*(?:working|work)/i,  // "What is the working time..."
+            /dr\.?\s+[a-z]+.{0,15}(?:schedule|hours|timing|work)/i,  // "Dr. Patel schedule/hours/timing/work"
+            /working time.{0,20}dr/i,  // "working time ... Dr"
+            /work hours.{0,20}dr/i,     // "work hours ... Dr"
+            /dr\.?.{0,20}(?:available|work|timing)/i  // "Dr ... available/work/timing"
+        ];
+        
+        // Extract specialty keywords
+        const specialtyMap = {
+            'cardiology': 'cardiology',
+            'cardiologist': 'cardiology',
+            'heart': 'cardiology',
+            'dermatology': 'dermatology',
+            'dermatologist': 'dermatology',
+            'skin': 'dermatology',
+            'neurology': 'neurology',
+            'neurologist': 'neurology',
+            'brain': 'neurology',
+            'orthopedics': 'orthopedics',
+            'orthopedic': 'orthopedics',
+            'bone': 'orthopedics',
+            'pediatrics': 'pediatrics',
+            'pediatrician': 'pediatrics',
+            'child': 'pediatrics',
+            'general': 'general-practice',
+            'gp': 'general-practice'
+        };
+        
+        let detectedSpecialty = null;
+        for (const [keyword, specialty] of Object.entries(specialtyMap)) {
+            if (lowerMsg.includes(keyword)) {
+                detectedSpecialty = specialty;
+                break;
+            }
+        }
+        
+        // Check for date patterns (YYYY-MM-DD or relative dates)
+        let detectedDate = null;
+        const datePatterns = [
+            /\b(\d{4}-\d{2}-\d{2})\b/,  // YYYY-MM-DD
+            /\btomorrow\b/i,
+            /\bnext (monday|tuesday|wednesday|thursday|friday)\b/i,
+            /\btoday\b/i
+        ];
+        
+        for (const pattern of datePatterns) {
+            const match = lowerMsg.match(pattern);
+            if (match) {
+                if (match[1] && match[1].includes('-')) {
+                    detectedDate = match[1]; // YYYY-MM-DD format
+                } else if (match[0].includes('tomorrow')) {
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    detectedDate = tomorrow.toISOString().split('T')[0];
+                } else if (match[0].includes('today')) {
+                    detectedDate = new Date().toISOString().split('T')[0];
+                }
+                break;
+            }
+        }
+        
+       
+        if (schedulePatterns.some(p => p.test(lowerMsg))) {
             
-            addMessage('\nConfirming your appointment...', 'assistant');
+            const drNameMatch = lowerMsg.match(/dr\.?\s*([a-z]+\s*[a-z]*)/i);
+            // Pattern: doc_XXX format
+            const doctorIdMatch = lowerMsg.match(/(?:doc[_-]?)(\d{3,})/i);
+            
+            let doctorIdentifier = null;
+            let extractedName = null;
+            
+            if (doctorIdMatch) {
+                doctorIdentifier = `doc_${doctorIdMatch[1]}`;
+            } else if (drNameMatch) {
+                extractedName = drNameMatch[1].trim();
+                doctorIdentifier = extractedName;
+            }
+            
+            return { 
+                tool: 'get_doctor_schedule', 
+                args: { doctor_id: doctorIdentifier },
+                doctorId: doctorIdentifier,
+                extractedName
+            };
+        }
+        
+        if (slotPatterns.some(p => p.test(lowerMsg))) {
+            return { 
+                tool: 'get_available_slots', 
+                args: { 
+                    specialty: detectedSpecialty,
+                    date: detectedDate
+                },
+                needsDate: !detectedDate,
+                needsSpecialty: !detectedSpecialty,
+                detectedSpecialty,
+                detectedDate
+            };
+        }
+        
+        if (doctorPatterns.some(p => p.test(lowerMsg))) {
+            return { 
+                tool: 'get_doctors', 
+                args: { specialty: detectedSpecialty },
+                needsSpecialty: !detectedSpecialty,
+                detectedSpecialty
+            };
+        }
+        
+        return { tool: 'general_query', args: { question: message } };
+    }
 
-            const typingId = showTypingIndicator();
-            isProcessing = true;
-            document.getElementById('sendBtn').disabled = true;
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const message = input.value.trim();
+        if (!message || isProcessing) return;
 
-            try {
-                const response = await fetch(`${API_BASE}/mcp/call`, {
+        document.getElementById('welcomeMessage').classList.add('hidden');
+        addMessage(message, 'user');
+        input.value = '';
+        input.style.height = 'auto';
+
+        let typingId = showTypingIndicator();
+        isProcessing = true;
+        document.getElementById('sendBtn').disabled = true;
+
+        try {
+        
+            const cleanMessage = message.replace(/\?$/, '');
+            const intent = detectIntent(cleanMessage);
+            let data;
+
+            if (intent.tool === 'get_doctors') {
+                if (intent.needsSpecialty) {
+                    
+                    removeTypingIndicator(typingId);
+                    const specialty = await promptForSpecialty();
+                    if (!specialty) {
+                        isProcessing = false;
+                        document.getElementById('sendBtn').disabled = false;
+                        return;
+                    }
+                    intent.args.specialty = specialty;
+                    typingId = showTypingIndicator();
+                }
+                
+                const res = await fetch(`${API_BASE}/mcp/call`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        name: 'book_appointment', 
-                        args: {
-                            user_id: bookingState.data.user_id,
-                            date: bookingState.data.date,
-                            time: bookingState.data.time,
-                            specialty: bookingState.data.specialty,
-                            reason: bookingState.data.reason
-                        }
-                    })
+                    body: JSON.stringify({ name: 'get_doctors', args: intent.args })
                 });
-                
-                const result = await response.json();
+                data = await res.json();
                 removeTypingIndicator(typingId);
-                const formattedResponse = formatResponse(result, 'book_appointment');
-                addMessage(formattedResponse, 'assistant');
+                addMessage(formatDoctorsResponse(data), 'assistant');
                 
-                bookingState.active = false;
-                bookingState.step = 0;
-                bookingState.data = {};
+            } else if (intent.tool === 'get_available_slots') {
+                if (intent.needsSpecialty) {
+                    removeTypingIndicator(typingId);
+                    const specialty = await promptForSpecialty();
+                    if (!specialty) {
+                        isProcessing = false;
+                        document.getElementById('sendBtn').disabled = false;
+                        return;
+                    }
+                    intent.args.specialty = specialty;
+                    typingId = showTypingIndicator();
+                }
                 
-            } catch (error) {
+                if (intent.needsDate) {
+                    removeTypingIndicator(typingId);
+                    const date = await promptForDate();
+                    if (!date) {
+                        isProcessing = false;
+                        document.getElementById('sendBtn').disabled = false;
+                        return;
+                    }
+                    intent.args.date = date;
+                    typingId = showTypingIndicator();
+                }
+                
+                const res = await fetch(`${API_BASE}/mcp/call`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'get_available_slots', args: intent.args })
+                });
+                data = await res.json();
                 removeTypingIndicator(typingId);
-                addMessage(`❌ Error: ${error.message}`, 'assistant');
-                bookingState.active = false;
-            } finally {
-                isProcessing = false;
-                document.getElementById('sendBtn').disabled = false;
+                addMessage(formatSlotsResponse(data), 'assistant');
+                
+            } else if (intent.tool === 'get_doctor_schedule') {
+                if (!intent.doctorId) {
+                    removeTypingIndicator(typingId);
+                    const doctorId = await promptForDoctorId();
+                    if (!doctorId) {
+                        isProcessing = false;
+                        document.getElementById('sendBtn').disabled = false;
+                        return;
+                    }
+                    intent.args.doctor_id = doctorId;
+                    typingId = showTypingIndicator();
+                }
+                
+                const res = await fetch(`${API_BASE}/mcp/call`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'get_doctor_schedule', args: intent.args })
+                });
+                data = await res.json();
+                removeTypingIndicator(typingId);
+                addMessage(formatScheduleResponse(data), 'assistant');
+                
+            } else {
+                // Default: general query
+                const res = await fetch(`${API_BASE}/mcp/call`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'general_query', args: intent.args })
+                });
+                data = await res.json();
+                removeTypingIndicator(typingId);
+                addMessage(formatGeneralResponse(data), 'assistant');
             }
+        } catch (err) {
+            removeTypingIndicator(typingId);
+            addMessage(`❌ Network error: ${err.message}`, 'assistant');
+        } finally {
+            isProcessing = false;
+            document.getElementById('sendBtn').disabled = false;
+        }
+    }
+
+    // ── Helper functions for prompts ───────────────────────────────────────
+    function promptForSpecialty() {
+        return new Promise((resolve) => {
+            const specialties = [
+                { id: 'cardiology', label: 'Cardiology (Heart)' },
+                { id: 'dermatology', label: 'Dermatology (Skin)' },
+                { id: 'neurology', label: 'Neurology (Brain/Nerves)' },
+                { id: 'orthopedics', label: 'Orthopedics (Bones/Joints)' },
+                { id: 'pediatrics', label: 'Pediatrics (Children)' },
+                { id: 'general-practice', label: 'General Practice' }
+            ];
+            
+            let html = `<div style="padding:14px;background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-left:4px solid #1976d2;border-radius:8px;">`;
+            html += `<div style="margin-bottom:10px;font-weight:600;color:#0d47a1;">🏥 Which specialty are you looking for?</div>`;
+            html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+            
+            specialties.forEach(spec => {
+                html += `<button onclick="window._resolveSpecialty('${spec.id}')" style="padding:6px 12px;background:white;border:1px solid #90caf9;border-radius:16px;cursor:pointer;font-size:0.85em;color:#1565c0;">${spec.label}</button>`;
+            });
+            
+            html += `</div></div>`;
+            
+            window._resolveSpecialty = (val) => {
+                delete window._resolveSpecialty;
+                resolve(val);
+            };
+            
+            addMessage(html, 'assistant');
+        });
+    }
+
+    function promptForDate() {
+        return new Promise((resolve) => {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const day3 = new Date(today);
+            day3.setDate(day3.getDate() + 2);
+            const day4 = new Date(today);
+            day4.setDate(day4.getDate() + 3);
+            const day5 = new Date(today);
+            day5.setDate(day5.getDate() + 4);
+            
+            const formatDate = (d) => d.toISOString().split('T')[0];
+            const formatDisplay = (d) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            
+            let html = `<div style="padding:14px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:4px solid #43a047;border-radius:8px;">`;
+            html += `<div style="margin-bottom:10px;font-weight:600;color:#1b5e20;">📅 Which date do you prefer?</div>`;
+            html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+            
+            [today, tomorrow, day3, day4, day5].forEach(d => {
+                html += `<button onclick="window._resolveDate('${formatDate(d)}')" style="padding:6px 12px;background:white;border:1px solid #a5d6a7;border-radius:16px;cursor:pointer;font-size:0.85em;color:#2e7d32;">${formatDisplay(d)}</button>`;
+            });
+            
+            html += `</div></div>`;
+            
+            window._resolveDate = (val) => {
+                delete window._resolveDate;
+                resolve(val);
+            };
+            
+            addMessage(html, 'assistant');
+        });
+    }
+
+    function promptForDoctorId() {
+        return new Promise((resolve) => {
+            let html = `<div style="padding:14px;background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:4px solid #fb8c00;border-radius:8px;">`;
+            html += `<div style="margin-bottom:10px;font-weight:600;color:#e65100;">👨‍⚕️ Please enter the Doctor ID</div>`;
+            html += `<div style="font-size:0.85em;color:#666;margin-bottom:10px;">Format: doc_XXX (e.g., doc_001)</div>`;
+            html += `<input type="text" id="tempDoctorId" placeholder="doc_001" style="padding:8px 12px;border:1px solid #ffb74d;border-radius:8px;width:120px;" />`;
+            html += ` <button onclick="window._resolveDoctorId(document.getElementById('tempDoctorId').value)" style="padding:8px 16px;background:#fb8c00;color:white;border:none;border-radius:8px;cursor:pointer;">Continue</button>`;
+            html += `</div>`;
+            
+            window._resolveDoctorId = (val) => {
+                if (val && val.trim()) {
+                    delete window._resolveDoctorId;
+                    resolve(val.trim());
+                }
+            };
+            
+            addMessage(html, 'assistant');
+        });
+    }
+
+    // ── Response formatters ───────────────────────────────────────────────
+    function formatError(data) {
+        let html = `<div style="padding:14px;background:linear-gradient(135deg,#fee,#fdd);border-left:4px solid #d32f2f;border-radius:8px;">`;
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:18px;">❌</span><strong style="color:#c62828;">Error</strong></div>`;
+        html += `<div style="color:#333;line-height:1.6;">${escapeHtml(data.message || 'An error occurred.')}</div>`;
+        if (data.suggestion) {
+            html += `<div style="margin-top:10px;padding:10px;background:#e3f2fd;border-left:3px solid #1976d2;border-radius:4px;color:#1565c0;font-size:0.9em;">${escapeHtml(data.suggestion)}</div>`;
+        }
+        html += `</div>`;
+        return html;
+    }
+
+    function formatBookingResponse(data) {
+        if (data.error) return formatError(data);
+        let html = `<div style="padding:16px;background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border-left:4px solid #43a047;border-radius:8px;">`;
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="font-size:20px;">✅</span><strong style="color:#2e7d32;font-size:1.05em;">Appointment Confirmed</strong></div>`;
+        html += `<div style="background:white;border-radius:8px;padding:12px;margin-bottom:10px;">`;
+        html += `<div style="font-size:1.1em;font-weight:700;color:#1b5e20;margin-bottom:8px;">🎫 ${escapeHtml(data.confirmation_number)}</div>`;
+        if (data.details) {
+            html += `<table style="width:100%;border-collapse:collapse;font-size:0.9em;">`;
+            for (const [k, v] of Object.entries(data.details)) {
+                html += `<tr><td style="padding:4px 8px 4px 0;color:#6c757d;white-space:nowrap;">${escapeHtml(k)}</td><td style="padding:4px 0;font-weight:500;">${escapeHtml(String(v))}</td></tr>`;
+            }
+            html += `</table>`;
+        }
+        html += `</div>`;
+        if (data.instructions) {
+            html += `<div style="font-size:0.85em;color:#555;">`;
+            data.instructions.forEach(i => { html += `<div style="margin-bottom:4px;">${escapeHtml(i)}</div>`; });
+            html += `</div>`;
+        }
+        html += `</div>`;
+        return html;
+    }
+
+    function formatDietResponse(data) {
+        if (data.error) return formatError(data);
+        let html = `<div style="padding:16px;background:linear-gradient(135deg,#fff8e1,#fff3e0);border-left:4px solid #fb8c00;border-radius:8px;">`;
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="font-size:20px;">🥗</span><strong style="color:#e65100;font-size:1.05em;">Your Personalized Diet Plan</strong></div>`;
+        const meta = [];
+        if (data.preference) meta.push(`<span style="background:#fff3e0;border:1px solid #ffb74d;color:#e65100;padding:2px 10px;border-radius:12px;font-size:0.8em;font-weight:600;">${escapeHtml(data.preference)}</span>`);
+        if (data.daily_calories) meta.push(`<span style="background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32;padding:2px 10px;border-radius:12px;font-size:0.8em;font-weight:600;">${data.daily_calories} kcal</span>`);
+        if (meta.length) html += `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${meta.join('')}</div>`;
+        if (data.plan) {
+            // Render plan as styled markdown-like blocks
+            const planHtml = escapeHtml(data.plan)
+                .replace(/## (.+)/g, '<div style="margin:10px 0 4px;font-weight:700;color:#bf360c;">$1</div>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^- (.+)/gm, '<div style="padding-left:12px;margin:2px 0;">• $1</div>');
+            html += `<div style="background:white;border-radius:8px;padding:14px;font-size:0.92em;line-height:1.65;white-space:pre-wrap;">${planHtml}</div>`;
+        } else if (data.meals) {
+            html += `<div style="background:white;border-radius:8px;padding:14px;">`;
+            for (const [meal, food] of Object.entries(data.meals)) {
+                html += `<div style="margin-bottom:8px;"><strong style="color:#bf360c;">${escapeHtml(meal)}</strong><div style="color:#555;font-size:0.9em;margin-top:2px;">${escapeHtml(food)}</div></div>`;
+            }
+            html += `</div>`;
+        }
+        if (data.tips) {
+            html += `<div style="margin-top:10px;font-size:0.84em;color:#555;">`;
+            data.tips.forEach(t => { html += `<div style="margin-bottom:3px;">${escapeHtml(t)}</div>`; });
+            html += `</div>`;
+        }
+        html += `</div>`;
+        return html;
+    }
+
+    function formatDoctorsResponse(data) {
+        if (data.error) return formatError(data);
+        
+        let html = `<div style="padding:16px;background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-left:4px solid #1976d2;border-radius:8px;">`;
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="font-size:20px;">👨‍⚕️</span><strong style="color:#0d47a1;font-size:1.05em;">Available Doctors</strong></div>`;
+        
+        if (data.specialties_available && data.specialties_available.length > 0) {
+            html += `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">`;
+            data.specialties_available.forEach(spec => {
+                html += `<span style="background:white;border:1px solid #90caf9;color:#1565c0;padding:2px 10px;border-radius:12px;font-size:0.8em;font-weight:600;">${escapeHtml(spec)}</span>`;
+            });
+            html += `</div>`;
+        }
+        
+        if (data.doctors && data.doctors.length > 0) {
+            html += `<div style="background:white;border-radius:8px;padding:12px;">`;
+            data.doctors.forEach((doc, idx) => {
+                if (idx > 0) html += `<div style="border-top:1px solid #e3f2fd;margin:8px 0;"></div>`;
+                html += `<div style="display:flex;justify-content:space-between;align-items:center;">`;
+                html += `<div><strong style="color:#1565c0;">${escapeHtml(doc.name)}</strong>`;
+                html += `<div style="font-size:0.85em;color:#555;">${escapeHtml(doc.specialty)} • ${escapeHtml(doc.experience)}</div></div>`;
+                html += `<span style="font-size:0.75em;color:#888;background:#f5f5f5;padding:2px 8px;border-radius:10px;">${escapeHtml(doc.id)}</span>`;
+                html += `</div>`;
+            });
+            html += `</div>`;
+        }
+        
+        if (data.suggestion) {
+            html += `<div style="margin-top:10px;font-size:0.85em;color:#555;">💡 ${escapeHtml(data.suggestion)}</div>`;
+        }
+        
+        html += `</div>`;
+        return html;
+    }
+
+    function formatSlotsResponse(data) {
+        if (data.error) return formatError(data);
+        
+        let html = `<div style="padding:16px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:4px solid #43a047;border-radius:8px;">`;
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="font-size:20px;">📅</span><strong style="color:#1b5e20;font-size:1.05em;">Available Slots</strong></div>`;
+        
+        html += `<div style="background:white;border-radius:8px;padding:10px 12px;margin-bottom:12px;">`;
+        html += `<div style="font-weight:600;color:#2e7d32;">${escapeHtml(data.specialty || '')}</div>`;
+        html += `<div style="font-size:0.9em;color:#555;">${escapeHtml(data.date || '')}</div>`;
+        html += `</div>`;
+        
+        if (data.available_slots && Object.keys(data.available_slots).length > 0) {
+            html += `<div style="background:white;border-radius:8px;padding:12px;">`;
+            html += `<div style="font-size:0.85em;color:#666;margin-bottom:8px;">Total options: ${data.total_options || 0}</div>`;
+            
+            for (const [time, doctors] of Object.entries(data.available_slots)) {
+                html += `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">`;
+                html += `<span style="background:#e8f5e9;color:#2e7d32;padding:4px 10px;border-radius:12px;font-weight:600;font-size:0.85em;white-space:nowrap;">${escapeHtml(time)}</span>`;
+                html += `<div style="flex:1;">`;
+                doctors.forEach(doc => {
+                    html += `<div style="font-size:0.9em;padding:2px 0;">${escapeHtml(doc.doctor_name)} <span style="color:#888;font-size:0.8em;">(${escapeHtml(doc.doctor_id)})</span></div>`;
+                });
+                html += `</div></div>`;
+            }
+            html += `</div>`;
+        } else {
+            html += `<div style="background:white;border-radius:8px;padding:12px;text-align:center;color:#666;">No available slots found.</div>`;
+        }
+        
+        if (data.suggestion) {
+            html += `<div style="margin-top:10px;font-size:0.85em;color:#555;">💡 ${escapeHtml(data.suggestion)}</div>`;
+        }
+        
+        html += `</div>`;
+        return html;
+    }
+
+    function formatScheduleResponse(data) {
+        if (data.error) return formatError(data);
+        
+        let html = `<div style="padding:16px;background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:4px solid #fb8c00;border-radius:8px;">`;
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="font-size:20px;">📋</span><strong style="color:#e65100;font-size:1.05em;">Doctor Schedule</strong></div>`;
+        
+        if (data.doctor) {
+            html += `<div style="background:white;border-radius:8px;padding:12px;margin-bottom:12px;">`;
+            html += `<div style="font-weight:700;color:#e65100;font-size:1.1em;">${escapeHtml(data.doctor.name)}</div>`;
+            html += `<div style="font-size:0.9em;color:#666;">${escapeHtml(data.doctor.specialty)} • ${escapeHtml(data.doctor.id)}</div>`;
+            html += `</div>`;
+        }
+        
+        if (data.schedule && data.schedule.length > 0) {
+            html += `<div style="background:white;border-radius:8px;padding:12px;">`;
+            html += `<div style="font-weight:600;color:#bf360c;margin-bottom:8px;">Weekly Hours</div>`;
+            data.schedule.forEach(slot => {
+                html += `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5;">`;
+                html += `<span style="color:#555;">${escapeHtml(slot.day)}</span>`;
+                html += `<span style="font-weight:500;color:#2e7d32;">${escapeHtml(slot.hours)}</span>`;
+                html += `</div>`;
+            });
+            html += `</div>`;
+        } else {
+            html += `<div style="background:white;border-radius:8px;padding:12px;text-align:center;color:#666;">No schedule information available.</div>`;
+        }
+        
+        html += `</div>`;
+        return html;
+    }
+
+    function formatGeneralResponse(data) {
+        if (data.error) return formatError(data);
+        let html = `<div style="line-height:1.65;">`;
+        if (data.answer) {
+            html += escapeHtml(data.answer)
+                .replace(/\n\n/g, '</p><p style="margin-top:8px;">')
+                .replace(/\n/g, '<br>');
+        }
+        if (data.disclaimer) {
+            html += `<div style="margin-top:12px;padding:8px 12px;background:#f3e5f5;border-left:3px solid #9c27b0;border-radius:4px;font-size:0.83em;color:#6a1b9a;">${escapeHtml(data.disclaimer)}</div>`;
+        }
+        html += `</div>`;
+        return html;
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g,'&')
+            .replace(/</g,'<')
+            .replace(/>/g,'>')
+            .replace(/"/g,'"');
+    }
+
+    // ── Chat helpers ──────────────────────────────────────────────────────
+    function addMessage(content, type) {
+        const messagesArea = document.getElementById('messagesArea');
+        const messageDiv   = document.createElement('div');
+        messageDiv.className = `message ${type}`;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        // content is either plain text (user/system) or pre-built safe HTML from formatters
+        if (type === 'user') {
+            contentDiv.textContent = content;
+        } else {
+            contentDiv.innerHTML = content;
+        }
+        messageDiv.appendChild(contentDiv);
+
+        if (type !== 'system') {
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+            messageDiv.appendChild(timeDiv);
         }
 
-        document.getElementById('userInput').addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
-    </script>
+        messagesArea.appendChild(messageDiv);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const messagesArea = document.getElementById('messagesArea');
+        const div = document.createElement('div');
+        div.className = 'message assistant';
+        div.id = 'typing-' + Date.now();
+        div.innerHTML = `<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+        messagesArea.appendChild(div);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+        return div.id;
+    }
+
+    function removeTypingIndicator(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+
+    // ── Tools Menu Functions ──────────────────────────────────────────────
+    function toggleToolsMenu() {
+        const dropdown = document.getElementById('toolsDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    // Close tools menu when clicking outside
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('toolsDropdown');
+        const btn = document.getElementById('toolsMenuBtn');
+        if (!dropdown.contains(e.target) && e.target !== btn) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    function useTool(toolName) {
+        // Hide the dropdown
+        document.getElementById('toolsDropdown').classList.remove('show');
+        
+        // Set appropriate query based on tool
+        const queries = {
+            'find_doctors': 'Show me doctors',
+            'check_slots': 'Check available slots',
+            'doctor_schedule': 'What is the working time of Dr.',
+            'book_appointment': '',
+            'diet_plan': ''
+        };
+        
+        if (toolName === 'book_appointment') {
+            openBookingModal();
+            return;
+        }
+        
+        if (toolName === 'diet_plan') {
+            openDietModal();
+            return;
+        }
+        
+        // Fill the input and focus
+        document.getElementById('userInput').value = queries[toolName] || '';
+        document.getElementById('userInput').focus();
+        
+        // Auto-trigger send for certain tools
+        if (toolName === 'find_doctors') {
+            setTimeout(() => sendMessage(), 100);
+        }
+    }
+
+    // Auto-grow textarea
+    document.getElementById('userInput').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 110) + 'px';
+    });
+</script>
 </body>
 </html>

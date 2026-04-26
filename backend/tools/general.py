@@ -2,41 +2,38 @@ import os
 from mistralai import Mistral
 
 def is_health_related(question):
-    """Check if the question is health-related"""
+    """Check if the question is health-related using specific medical/health keywords only."""
     health_keywords = [
-        'health', 'medical', 'symptom', 'disease', 'treatment', 'medicine', 'doctor',
-        'pain', 'sick', 'illness', 'condition', 'diagnosis', 'therapy', 'cure',
-        'hospital', 'clinic', 'patient', 'healthcare', 'wellness', 'fitness',
-        'diet', 'nutrition', 'mental health', 'anxiety', 'depression', 'stress',
-        'appointment', 'prescription', 'vaccine', 'surgery', 'injury', 'infection',
-        'fever', 'cough', 'headache', 'allergy', 'diabetes', 'blood pressure',
-        'heart', 'lung', 'kidney', 'liver', 'brain', 'skin', 'bone', 'muscle',
-        'vitamin', 'exercise', 'sleep', 'water', 'weight', 'yoga', 'meditation',
-        'food', 'eat', 'drink', 'calories', 'protein', 'carb', 'fat', 'fiber',
-        'sugar', 'cholesterol', 'hydration', 'meal', 'snack', 'breakfast', 'lunch', 'dinner',
-        'vegetarian', 'vegan', 'keto', 'paleo', 'gluten', 'lactose', 'dairy',
-        'running', 'walking', 'gym', 'workout', 'cardio', 'strength', 'stretch',
-        'breath', 'relax', 'tired', 'energy', 'fatigue', 'insomnia', 'rest',
-        'benefit', 'healthy', 'unhealthy', 'habit', 'lifestyle', 'prevent',
-        'immune', 'body', 'physical', 'mental', 'emotional', 'wellbeing'
+        # Medical conditions & symptoms
+        'symptom', 'disease', 'condition', 'diagnosis', 'illness', 'disorder',
+        'infection', 'fever', 'cough', 'headache', 'pain', 'ache', 'nausea', 'vomit',
+        'diabetes', 'blood pressure', 'hypertension', 'asthma', 'arthritis', 'cancer',
+        'allergy', 'allergic', 'rash', 'inflammation', 'fracture', 'injury', 'wound',
+        # Treatments & healthcare
+        'treatment', 'medicine', 'medication', 'prescription', 'therapy', 'cure',
+        'surgery', 'vaccine', 'vaccination', 'dose', 'dosage', 'side effect',
+        'doctor', 'physician', 'specialist', 'hospital', 'clinic', 'emergency',
+        'healthcare', 'appointment', 'consultation',
+        # Body systems
+        'heart', 'lung', 'kidney', 'liver', 'brain', 'blood', 'bone', 'muscle',
+        'immune', 'nervous system', 'digestive', 'respiratory', 'cardiovascular',
+        # Nutrition & diet
+        'nutrition', 'nutrient', 'vitamin', 'mineral', 'calorie', 'protein',
+        'carbohydrate', 'cholesterol', 'diet plan', 'meal plan', 'dietary',
+        'vegetarian', 'vegan', 'keto', 'gluten', 'lactose', 'diabetic diet',
+        # Mental health
+        'mental health', 'anxiety', 'depression', 'stress', 'insomnia', 'sleep disorder',
+        'sleep', 'therapy', 'counseling', 'psychiatrist', 'psychologist',
+        # Wellness & fitness
+        'fitness', 'exercise', 'workout', 'wellness', 'healthy lifestyle',
+        'weight loss', 'obesity', 'bmi', 'physical activity',
+        # General health terms
+        'health', 'medical', 'clinical', 'patient', 'healthy', 'unhealthy',
+        'prevent', 'prevention', 'risk factor', 'chronic', 'acute'
     ]
-    
+
     question_lower = question.lower()
-    
-    if any(keyword in question_lower for keyword in health_keywords):
-        return True
-    
-    
-    health_patterns = [
-        'how to', 'what is', 'why is', 'should i', 'can i', 'is it good', 'is it bad',
-        'how much', 'how many', 'what are', 'benefits of', 'effects of', 'causes of'
-    ]
-    
-   
-    if any(pattern in question_lower for pattern in health_patterns):
-        return True
-    
-    return False
+    return any(keyword in question_lower for keyword in health_keywords)
 
 def answer(question, context=None):
     """
@@ -51,7 +48,7 @@ def answer(question, context=None):
     print(f"   Question: {question}")
     print(f"   Context: {context or 'None'}")
     
-   
+    # Validate that query is health-related
     if not is_health_related(question):
         print(f"   ⚠️ Non-health question detected")
         return {
@@ -64,6 +61,8 @@ def answer(question, context=None):
     
     if not api_key or api_key == "your-mistral-api-key-here":
         print(f"   ⚠️ Mistral API key not configured, using template response")
+        
+        # Common health topics with responses
         health_knowledge = {
             "exercise": "Regular exercise is crucial for health. Aim for 150 minutes of moderate aerobic activity or 75 minutes of vigorous activity per week, plus strength training twice weekly.",
             "sleep": "Adults need 7-9 hours of quality sleep per night. Maintain a consistent sleep schedule and create a relaxing bedtime routine.",
@@ -87,36 +86,44 @@ def answer(question, context=None):
             "disclaimer": "⚕️ This is general information. Please consult a healthcare professional for medical advice."
         }
     
+    # Use Mistral AI for response
     client = Mistral(api_key=api_key)
     
     try:
         messages = [
             {
                 "role": "system",
-                "content": """You are a helpful healthcare assistant. 
-                
-IMPORTANT: You ONLY answer health-related questions about:
-- Medical conditions, symptoms, and diseases
-- Treatments, medications, and therapies
-- Diet, nutrition, and meal planning
-- Exercise, fitness, and wellness
-- Mental health and stress management
-- Healthcare appointments and services
+                "content": """You are a certified healthcare information assistant. Follow these rules strictly:
 
-If asked about non-health topics (weather, sports, politics, general knowledge, etc.), politely decline and redirect to health topics.
+SCOPE: Only answer questions about medical conditions, symptoms, treatments, medications, nutrition, fitness, mental health, or healthcare services. For any other topic, reply: "I can only assist with health-related questions."
 
-Provide accurate, helpful health information. Always remind users to consult healthcare professionals for medical advice."""
+ACCURACY:
+- Only state facts that are well-established in medical literature.
+- If uncertain, say "I don't have enough information on this — please consult a doctor."
+- Never invent drug names, dosages, or treatment protocols.
+- Do not guess at diagnoses.
+
+OUTPUT FORMAT:
+1. Direct answer to the question (2-4 sentences max).
+2. Key points as a short bullet list (if applicable).
+3. End with: "⚕️ Consult a healthcare professional before making medical decisions."
+
+HARD RULES:
+- Never claim to diagnose a condition.
+- Never recommend specific prescription drug doses.
+- Never contradict emergency medical advice.
+- If the question involves an emergency, always say: "Call emergency services (911) immediately." """
             },
             {
                 "role": "user",
                 "content": question
             }
         ]
-        
+
         if context:
             messages.insert(1, {
                 "role": "system",
-                "content": f"Additional context: {context}"
+                "content": f"Patient context (use only for relevance, do not expose): {context}"
             })
         
         response = client.chat.complete(

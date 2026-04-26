@@ -50,23 +50,59 @@ def generate(preferences, calories=None, allergies=None):
     
     try:
         client = Mistral(api_key=api_key)
-        
-        prompt = f"""Create a detailed, personalized diet plan:
-- Dietary preference: {preferences}
-- Target calories: {calories or '2000 (standard)'} per day
-- Allergies/restrictions: {', '.join(allergies) if allergies else 'None'}
 
-Provide a complete day's meal plan with breakfast, lunch, dinner, and 2 snacks. 
-Include approximate calories and practical nutrition tips."""
-        
+        allergy_str = ', '.join(allergies) if allergies else 'None'
+        calorie_target = calories or 2000
+
+        prompt = f"""Create a one-day diet plan with these exact constraints:
+- Dietary style: {preferences}
+- Total daily calories: {calorie_target} kcal (±50 kcal tolerance)
+- ALLERGIES/RESTRICTIONS — MUST AVOID: {allergy_str}
+
+CRITICAL: If allergies are listed, every single meal and ingredient MUST be free of those allergens. Check each item carefully.
+
+Respond in this exact format — no deviations:
+
+## Breakfast (~XX kcal)
+[Meal name]: [ingredients]
+
+## Morning Snack (~XX kcal)
+[Meal name]: [ingredients]
+
+## Lunch (~XX kcal)
+[Meal name]: [ingredients]
+
+## Afternoon Snack (~XX kcal)
+[Meal name]: [ingredients]
+
+## Dinner (~XX kcal)
+[Meal name]: [ingredients]
+
+## Daily Total: ~XX kcal
+
+## Nutrition Tips
+- [Tip 1]
+- [Tip 2]
+- [Tip 3]
+
+⚠️ This plan is for informational purposes. Consult a registered dietitian for personalized medical nutrition therapy."""
+
         response = client.chat.complete(
             model=os.getenv("MISTRAL_MODEL", "mistral-small-latest"),
             messages=[
-                {"role": "system", "content": "You are a professional nutritionist. Provide specific, practical diet plans."},
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a registered dietitian. You ONLY output diet plans in the exact format requested. "
+                        "You never fabricate calorie counts — use standard nutritional reference values. "
+                        f"CRITICAL: The user has these allergies/restrictions: {allergy_str}. "
+                        "Before finalizing each meal, verify it contains NONE of these allergens."
+                    )
+                },
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7,
-            max_tokens=800
+            temperature=0.3,
+            max_tokens=900
         )
         
         diet_content = response.choices[0].message.content

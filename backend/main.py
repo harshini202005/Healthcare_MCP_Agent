@@ -1,14 +1,17 @@
 
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 from backend.mcp import tools, call_tool, get_available_tools
 from typing import Dict, Any
 import logging
 import json
+import os
 from datetime import datetime
 
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -23,6 +26,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -31,8 +35,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def root():
+@app.get("/api")
+def api_info():
     return {
         "message": "Healthcare MCP API",
         "endpoints": {
@@ -65,17 +69,18 @@ def mcp_call(payload: Dict[str, Any] = Body(...)):
         logger.error("❌ Missing 'name' field in request")
         return {"error": "Missing 'name' field in request"}
     
-    
+    # Log the incoming request
     logger.info("=" * 80)
     logger.info(f"🔧 TOOL CALL: {name}")
     logger.info(f"📥 INPUT ARGS:")
     for key, value in args.items():
         logger.info(f"   • {key}: {value}")
     logger.info("-" * 80)
-  
+    
+    # Execute the tool
     result = call_tool(name, args)
     
-   
+    # Log the response
     if "error" in result:
         logger.error(f"❌ ERROR: {result.get('error')}")
         if "suggestion" in result:
@@ -84,6 +89,7 @@ def mcp_call(payload: Dict[str, Any] = Body(...)):
         logger.info(f"✅ SUCCESS")
         logger.info(f"📤 OUTPUT:")
         
+        # Pretty print the result
         if name == "book_appointment" and "confirmation_number" in result:
             logger.info(f"   🎫 Confirmation: {result['confirmation_number']}")
             logger.info(f"   👤 Patient: {result.get('details', {}).get('Patient ID', 'N/A')}")
@@ -101,3 +107,16 @@ def mcp_call(payload: Dict[str, Any] = Body(...)):
     logger.info("")
     
     return result
+
+# ── Serve Frontend ──────────────────────────────────────────────────────
+# Mount frontend static files (must be after API routes)
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+
+@app.get("/")
+def serve_frontend():
+    """Serve the frontend index.html"""
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+
+# Mount static assets from frontend/ at /assets (for future CSS/JS files)
+if os.path.isdir(FRONTEND_DIR):
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="frontend-assets")
